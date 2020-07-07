@@ -1,9 +1,12 @@
 var/list/stored_shock_by_ref = list()
 
 /mob/living/proc/apply_stored_shock_to(var/mob/living/target)
-	if(stored_shock_by_ref["\ref[src]"])
-		target.electrocute_act(stored_shock_by_ref["\ref[src]"]*0.9, src)
+	if(stored_shock_by_ref["\ref[src]"] >= 1)
+		target.electrocute_act(min(30, (stored_shock_by_ref["\ref[src]"]*0.1)), src)
 		stored_shock_by_ref["\ref[src]"] = 0
+
+/datum/species/proc/has_fine_manipulation(var/mob/living/carbon/human/H)
+	return has_fine_manipulation
 
 /datum/species/proc/toggle_stance(var/mob/living/carbon/human/H)
 	if(!H.incapacitated())
@@ -36,12 +39,12 @@ var/list/stored_shock_by_ref = list()
 		return I
 	return overlay_image(mob_icon, mob_state, color, RESET_COLOR)
 
-/datum/species/proc/fluid_act(var/mob/living/carbon/human/H, var/datum/reagents/fluids)
-	var/water = REAGENT_VOLUME(fluids, /decl/material/liquid/water)
-	if(water >= 40 && H.getHalLoss())
-		H.adjustHalLoss(-(water_soothe_amount))
-		if(prob(5))
-			to_chat(H, SPAN_NOTICE("The water ripples gently over your skin in a soothing balm."))
+/datum/species/proc/water_act(var/mob/living/carbon/human/H, var/depth)
+	if(!isnull(water_soothe_amount) && depth >= 40)
+		if(H.getHalLoss())
+			H.adjustHalLoss(-(water_soothe_amount))
+			if(prob(5))
+				to_chat(H, "<span class='notice'>The water ripples gently over your skin in a soothing balm.</span>")
 
 /datum/species/proc/is_available_for_join()
 	if(!(spawn_flags & SPECIES_CAN_JOIN))
@@ -59,22 +62,4 @@ var/list/stored_shock_by_ref = list()
 	. = TRUE
 
 /datum/species/proc/get_digestion_product()
-	return /decl/material/liquid/nutriment
-
-/datum/species/proc/handle_post_species_pref_set(var/datum/preferences/pref)
-	return
-
-/datum/species/proc/get_resized_organ_w_class(var/organ_w_class)
-	. = Clamp(organ_w_class + mob_size_difference(mob_size, MOB_SIZE_MEDIUM), ITEM_SIZE_TINY, ITEM_SIZE_GARGANTUAN)
-
-/datum/species/proc/resize_organ(var/obj/item/organ/organ)
-	if(!istype(organ))
-		return
-	organ.w_class = get_resized_organ_w_class(initial(organ.w_class))
-	if(!istype(organ, /obj/item/organ/external))
-		return
-	var/obj/item/organ/external/limb = organ
-	for(var/bp_tag in has_organ)
-		var/obj/item/organ/internal/I = has_organ[bp_tag]
-		if(initial(I.parent_organ) == organ.organ_tag)
-			limb.cavity_max_w_class = max(limb.cavity_max_w_class, get_resized_organ_w_class(initial(I.w_class)))
+	return /datum/reagent/nutriment

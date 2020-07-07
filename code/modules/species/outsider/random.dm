@@ -3,7 +3,6 @@
 	name_plural = "Humanoids"
 	description = "Some alien humanoid species, unknown to humanity. How exciting."
 	rarity_value = 5
-	bodytype = BODYTYPE_HUMANOID
 
 	species_flags = SPECIES_FLAG_NO_SCAN
 	spawn_flags = SPECIES_IS_RESTRICTED
@@ -86,6 +85,9 @@
 
 	..()
 
+/datum/species/alium/get_bodytype(var/mob/living/carbon/human/H)
+	return SPECIES_HUMAN
+
 /datum/species/alium/proc/adapt_to_atmosphere(var/datum/gas_mixture/atmosphere)
 	var/temp_comfort_shift = atmosphere.temperature - body_temperature
 
@@ -112,12 +114,10 @@
 	breath_type = pick(atmosphere.gas)
 	breath_pressure = 0.8*(atmosphere.gas[breath_type]/atmosphere.total_moles)*normal_pressure
 
-	var/list/newgases = subtypesof(/decl/material/gas)
-	newgases = newgases.Copy()
+	var/list/newgases = gas_data.gases.Copy()
 	newgases ^= atmosphere.gas
 	for(var/gas in newgases)
-		var/decl/material/mat = decls_repository.get_decl(gas)
-		if(mat.gas_flags & (XGM_GAS_OXIDIZER|XGM_GAS_FUEL))
+		if(gas_data.flags[gas] & (XGM_GAS_OXIDIZER|XGM_GAS_FUEL))
 			newgases -= gas
 	if(newgases.len)
 		poison_types = list(pick_n_take(newgases))
@@ -145,7 +145,7 @@
 		return
 	to_chat(user, "You're now an alien humanoid of some undiscovered species. Make up what lore you want, no one knows a thing about your species! You can check info about your traits with Check Species Info verb in IC tab.")
 	to_chat(user, "You can't speak GalCom or any other languages by default. You can use translator implant that spawns on top of this monolith - it will give you knowledge of any language if you hear it enough times.")
-	new/obj/item/implanter/translator(get_turf(src))
+	new/obj/item/weapon/implanter/translator(get_turf(src))
 	user.set_species(SPECIES_ALIEN)
 	var/decl/cultural_info/culture = user.get_cultural_value(TAG_CULTURE)
 	user.fully_replace_character_name(culture.get_random_name(user.gender))

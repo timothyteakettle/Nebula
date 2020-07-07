@@ -46,7 +46,7 @@
 	blood_color = "#ffff00"
 	flesh_color = "#ffff00"
 
-	unarmed_attacks = list(/decl/natural_attack/punch/starborn)
+	unarmed_types = list(/datum/unarmed_attack/punch/starborn)
 
 	cold_discomfort_level = 300
 	cold_discomfort_strings = list("You feel your fire dying out...",
@@ -83,10 +83,8 @@
 /datum/species/starlight/starborn/handle_death(var/mob/living/carbon/human/H)
 	..()
 	var/turf/T = get_turf(H)
-	var/obj/effect/fluid/F = locate() in T
-	if(!F) F = new(T)
-	F.reagents.add_reagent(/decl/material/liquid/fuel, 20)
-	T.hotspot_expose(FLAMMABLE_GAS_MINIMUM_BURN_TEMPERATURE)
+	new/obj/effect/decal/cleanable/liquid_fuel(T, 20, TRUE)
+	T.hotspot_expose(PHORON_MINIMUM_BURN_TEMPERATURE)
 
 /datum/species/starlight/blueforged
 	name = "Blueforged"

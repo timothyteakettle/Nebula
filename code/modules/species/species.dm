@@ -12,17 +12,13 @@
 	var/ooc_codex_information
 	var/cyborg_noun = "Cyborg"
 	var/hidden_from_codex = TRUE
-	var/is_crystalline = FALSE
 
 	// Icon/appearance vars.
 	var/icobase =      'icons/mob/human_races/species/human/body.dmi'          // Normal icon set.
 	var/deform =       'icons/mob/human_races/species/human/deformed_body.dmi' // Mutated icon set.
 	var/preview_icon = 'icons/mob/human_races/species/human/preview.dmi'
-	var/lip_icon =     'icons/mob/human_races/species/human/lips.dmi'
 	var/husk_icon =    'icons/mob/human_races/species/default_husk.dmi'
 	var/bandages_icon
-	var/bodytype = BODYTYPE_OTHER
-	var/limb_icon_intensity = 1.5
 
 	// Damage overlay and masks.
 	var/damage_overlays = 'icons/mob/human_races/species/human/damage_overlay.dmi'
@@ -47,7 +43,7 @@
 	var/default_h_style = "Bald"
 	var/default_f_style = "Shaved"
 
-	var/icon_cache_uid                        // Used for mob icon cache string.
+	var/race_key = 0                          // Used for mob icon cache string.
 	var/icon_template = 'icons/mob/human_races/species/template.dmi' // Used for mob icon generation for non-32x32 species.
 	var/pixel_offset_x = 0                    // Used for offsetting large icons.
 	var/pixel_offset_y = 0                    // Used for offsetting large icons.
@@ -55,7 +51,7 @@
 	var/antaghud_offset_x = 0                 // As above, but specifically for the antagHUD indicator.
 	var/antaghud_offset_y = 0                 // As above, but specifically for the antagHUD indicator.
 
-	var/mob_size	= MOB_SIZE_MEDIUM
+	var/mob_size	= MOB_MEDIUM
 	var/strength    = STR_MEDIUM
 	var/show_ssd = "fast asleep"
 	var/short_sighted                         // Permanent weldervision.
@@ -66,7 +62,7 @@
 	var/taste_sensitivity = TASTE_NORMAL      // How sensitive the species is to minute tastes.
 	var/silent_steps
 
-	var/min_age = 17
+	var/min_age = 18
 	var/max_age = 70
 
 	// Speech vars.
@@ -76,10 +72,11 @@
 
 	// Combat vars.
 	var/total_health = 200                   // Point at which the mob will enter crit.
-	var/list/unarmed_attacks = list(           // Possible unarmed attacks that the mob will use in combat,
-		/decl/natural_attack,
-		/decl/natural_attack/bite
+	var/list/unarmed_types = list(           // Possible unarmed attacks that the mob will use in combat,
+		/datum/unarmed_attack,
+		/datum/unarmed_attack/bite
 		)
+	var/list/unarmed_attacks = null           // For empty hand harm-intent attack
 
 	var/list/natural_armour_values            // Armour values used if naked.
 	var/brute_mod =      1                    // Physical damage multiplier.
@@ -97,17 +94,17 @@
 	var/vision_flags = SEE_SELF               // Same flags as glasses.
 
 	// Death vars.
-	var/meat_type =     /obj/item/chems/food/snacks/meat/human
+	var/meat_type =     /obj/item/weapon/reagent_containers/food/snacks/meat/human
 	var/meat_amount =   3
-	var/skin_material = MAT_SKIN_GENERIC
+	var/skin_material = MATERIAL_SKIN_GENERIC
 	var/skin_amount =   3
-	var/bone_material = MAT_BONE_GENERIC
+	var/bone_material = MATERIAL_BONE_GENERIC
 	var/bone_amount =   3
 	var/remains_type =  /obj/item/remains/xeno
 	var/gibbed_anim =   "gibbed-h"
 	var/dusted_anim =   "dust-h"
 
-	var/death_sound
+	var/death_sound = 'sound/effects/deathrattle.ogg'
 	var/death_message = "seizes up and falls limp, their eyes dead and lifeless..."
 	var/knockout_message = "collapses, having been knocked unconscious."
 	var/halloss_message = "slumps over, too weak to continue fighting..."
@@ -118,11 +115,9 @@
 	// Environment tolerance/life processes vars.
 	var/reagent_tag                                             // Used for metabolizing reagents.
 	var/breath_pressure = 16                                    // Minimum partial pressure safe for breathing, kPa
-	var/breath_type = MAT_OXYGEN                                  // Non-oxygen gas breathed, if any.
-	var/poison_types = list(MAT_PHORON = TRUE, MAT_CHLORINE = TRUE) // Noticeably poisonous air - ie. updates the toxins indicator on the HUD.
-	var/exhale_type = MAT_CO2                          // Exhaled gas type.
-	var/blood_reagent = /decl/material/liquid/blood
-
+	var/breath_type = GAS_OXYGEN                                  // Non-oxygen gas breathed, if any.
+	var/poison_types = list(GAS_PHORON = TRUE, GAS_CHLORINE = TRUE) // Noticeably poisonous air - ie. updates the toxins indicator on the HUD.
+	var/exhale_type = GAS_CO2                          // Exhaled gas type.
 	var/max_pressure_diff = 60                                  // Maximum pressure difference that is safe for lungs
 	var/cold_level_1 = 243                                      // Cold damage level 1 below this point. -30 Celsium degrees
 	var/cold_level_2 = 200                                      // Cold damage level 2 below this point.
@@ -157,10 +152,11 @@
 	var/hud_type
 	var/health_hud_intensity = 1
 
-	var/grab_type = /decl/grab/normal/passive // The species' default grab type.
+	var/grab_type = GRAB_NORMAL		// The species' default grab type.
 
 	// Body/form vars.
 	var/list/inherent_verbs 	  // Species-specific verbs.
+	var/has_fine_manipulation = 1 // Can use small items.
 	var/siemens_coefficient = 1   // The lower, the thicker the skin and better the insulation.
 	var/darksight_range = 2       // Native darksight distance.
 	var/darksight_tint = DARKTINT_NONE // How shadows are tinted.
@@ -247,7 +243,7 @@
 		TAG_CULTURE =   list(CULTURE_OTHER),
 		TAG_HOMEWORLD = list(HOME_SYSTEM_STATELESS),
 		TAG_FACTION =   list(FACTION_OTHER),
-		TAG_RELIGION =  list(RELIGION_OTHER)
+		TAG_RELIGION =  list(RELIGION_OTHER, RELIGION_ATHEISM, RELIGION_AGNOSTICISM)
 	)
 	var/list/force_cultural_info =                list()
 	var/list/default_cultural_info =              list()
@@ -260,11 +256,6 @@
 		list(/decl/emote/audible/grunt, /decl/emote/audible/groan, /decl/emote/audible/moan) = 40,
 		list(/decl/emote/audible/grunt, /decl/emote/audible/groan) = 10,
 	)
-
-	var/manual_dexterity = DEXTERITY_FULL
-
-	var/datum/ai/ai						// Type abused. Define with path and will automagically create. Determines behaviour for clientless mobs. This will override mob AIs.
-
 /*
 These are all the things that can be adjusted for equipping stuff and
 each one can be in the NORTH, SOUTH, EAST, and WEST direction. Specify
@@ -332,6 +323,10 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 	if(!breathing_organ && has_organ[BP_LUNGS])
 		breathing_organ = BP_LUNGS
 
+	unarmed_attacks = list()
+	for(var/u_type in unarmed_types)
+		unarmed_attacks += new u_type()
+
 	// Modify organ lists if necessary.
 	if(islist(override_organ_types))
 		for(var/ltag in override_organ_types)
@@ -348,15 +343,12 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 		organ_data["descriptor"] = initial(limb_path.name)
 
 /datum/species/proc/equip_survival_gear(var/mob/living/carbon/human/H,var/extendedtank = 1)
-	if(istype(H.get_equipped_item(slot_back), /obj/item/storage/backpack))
-		if (extendedtank)	H.equip_to_slot_or_del(new /obj/item/storage/box/engineer(H.back), slot_in_backpack)
-		else	H.equip_to_slot_or_del(new /obj/item/storage/box/survival(H.back), slot_in_backpack)
+	if(istype(H.get_equipped_item(slot_back), /obj/item/weapon/storage/backpack))
+		if (extendedtank)	H.equip_to_slot_or_del(new /obj/item/weapon/storage/box/engineer(H.back), slot_in_backpack)
+		else	H.equip_to_slot_or_del(new /obj/item/weapon/storage/box/survival(H.back), slot_in_backpack)
 	else
-		if (extendedtank)	H.equip_to_slot_or_del(new /obj/item/storage/box/engineer(H), slot_r_hand)
-		else	H.equip_to_slot_or_del(new /obj/item/storage/box/survival(H), slot_r_hand)
-
-/datum/species/proc/get_manual_dexterity(var/mob/living/carbon/human/H)
-	. = manual_dexterity
+		if (extendedtank)	H.equip_to_slot_or_del(new /obj/item/weapon/storage/box/engineer(H), slot_r_hand)
+		else	H.equip_to_slot_or_del(new /obj/item/weapon/storage/box/survival(H), slot_r_hand)
 
 /datum/species/proc/create_organs(var/mob/living/carbon/human/H) //Handles creation of mob organs.
 
@@ -455,7 +447,7 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 /datum/species/proc/handle_pre_spawn(var/mob/living/carbon/human/H)
 	return
 
-/datum/species/proc/handle_death(var/mob/living/carbon/human/H) //Handles any species-specific death events.
+/datum/species/proc/handle_death(var/mob/living/carbon/human/H) //Handles any species-specific death events (such as dionaea nymph spawns).
 	return
 
 /datum/species/proc/handle_new_grab(var/mob/living/carbon/human/H, var/obj/item/grab/G)
@@ -468,6 +460,7 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 		else
 			H.emote("groan")
 
+// Only used for alien plasma weeds atm, but could be used for Dionaea later.
 /datum/species/proc/handle_environment_special(var/mob/living/carbon/human/H)
 	return
 
@@ -486,6 +479,7 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 /datum/species/proc/build_hud(var/mob/living/carbon/human/H)
 	return
 
+//Used by xenos understanding larvae and dionaea understanding nymphs.
 /datum/species/proc/can_understand(var/mob/other)
 	return
 
@@ -509,13 +503,17 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 	if(!ignore_antag && H.mind && !player_is_antag(H.mind))
 		return 0
 
-	for(var/attack_type in unarmed_attacks)
-		var/decl/natural_attack/attack = decls_repository.get_decl(attack_type)
-		if(!istype(attack) || !attack.is_usable(H))
+	for(var/datum/unarmed_attack/attack in unarmed_attacks)
+		if(!attack.is_usable(H))
 			continue
 		if(attack.shredding)
 			return 1
+
 	return 0
+
+// Called in life() when the mob has no client.
+/datum/species/proc/handle_npc(var/mob/living/carbon/human/H)
+	return
 
 /datum/species/proc/handle_vision(var/mob/living/carbon/human/H)
 	var/list/vision = H.get_accumulated_vision_handlers()
@@ -526,7 +524,7 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 	if(H.stat == DEAD)
 		return 1
 
-	if(!H.drugged)
+	if(!H.druggy)
 		H.set_see_in_dark((H.sight == (SEE_TURFS|SEE_MOBS|SEE_OBJS)) ? 8 : min(H.getDarkvisionRange() + H.equipment_darkness_modifier, 8))
 		if(H.equipment_see_invis)
 			H.set_see_invisible(max(min(H.see_invisible, H.equipment_see_invis), vision[2]))
@@ -538,18 +536,13 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 		return 1
 
 	H.set_fullscreen(H.eye_blind && !H.equipment_prescription, "blind", /obj/screen/fullscreen/blind)
-	H.set_fullscreen(H.stat == UNCONSCIOUS, "blackout", /obj/screen/fullscreen/blackout)
 
 	if(config.welder_vision)
 		H.set_fullscreen(H.equipment_tint_total, "welder", /obj/screen/fullscreen/impaired, H.equipment_tint_total)
 	var/how_nearsighted = get_how_nearsighted(H)
 	H.set_fullscreen(how_nearsighted, "nearsighted", /obj/screen/fullscreen/oxy, how_nearsighted)
 	H.set_fullscreen(H.eye_blurry, "blurry", /obj/screen/fullscreen/blurry)
-	H.set_fullscreen(H.drugged, "high", /obj/screen/fullscreen/high)
-	if(H.drugged)
-		H.add_client_color(/datum/client_color/oversaturated)
-	else
-		H.remove_client_color(/datum/client_color/oversaturated)
+	H.set_fullscreen(H.druggy, "high", /obj/screen/fullscreen/high)
 
 	for(var/overlay in H.equipment_overlays)
 		H.client.screen |= overlay
@@ -581,17 +574,9 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 	return Clamp(max(prescriptions, light), 0, 7)
 
 /datum/species/proc/set_default_hair(var/mob/living/carbon/human/H)
-	if(H.h_style != H.species.default_h_style)
-		H.h_style = H.species.default_h_style
-		. = TRUE
-	if(H.f_style != H.species.default_f_style)
-		H.f_style = H.species.default_f_style
-		. = TRUE
-	if(.)
-		H.update_hair()
-
-/datum/species/proc/handle_additional_hair_loss(var/mob/living/carbon/human/H, var/defer_body_update = TRUE)
-	return FALSE
+	H.h_style = H.species.default_h_style
+	H.f_style = H.species.default_f_style
+	H.update_hair()
 
 /datum/species/proc/get_blood_name()
 	return "blood"
@@ -626,11 +611,11 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 
 	var/list/holding = list(target.get_active_hand() = 60, target.get_inactive_hand() = 30)
 
-	var/skill_mod = 10 * attacker.get_skill_difference(SKILL_COMBAT, target)
+	var/skill_mod = 5 * attacker.get_skill_difference(SKILL_COMBAT, target)
 	var/state_mod = attacker.melee_accuracy_mods() - target.melee_accuracy_mods()
-	var/push_mod = min(max(1 + attacker.get_skill_difference(SKILL_COMBAT, target), 1), 3)
+	var/push_mod = min(max(1 + attacker.get_skill_difference(SKILL_COMBAT, target), 1), 2)
 	if(target.a_intent == I_HELP)
-		state_mod -= 30
+		state_mod -= 15
 	//Handle unintended consequences
 	for(var/obj/item/I in holding)
 		var/hurt_prob = max(holding[I] - 2*skill_mod + state_mod, 0)
@@ -684,7 +669,7 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 		LAZYSET(hair_styles, type, L)
 		for(var/hairstyle in GLOB.hair_styles_list)
 			var/datum/sprite_accessory/S = GLOB.hair_styles_list[hairstyle]
-			if(S.species_allowed && !(get_root_species_name() in S.species_allowed))
+			if(S.species_allowed && !(get_bodytype() in S.species_allowed))
 				continue
 			if(S.subspecies_allowed && !(name in S.subspecies_allowed))
 				continue
@@ -709,7 +694,7 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 				continue
 			if(gender == FEMALE && S.gender == MALE)
 				continue
-			if(S.species_allowed && !(get_root_species_name() in S.species_allowed))
+			if(S.species_allowed && !(get_bodytype() in S.species_allowed))
 				continue
 			if(S.subspecies_allowed && !(name in S.subspecies_allowed))
 				continue
@@ -742,7 +727,7 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 	if((!skip_photo && preview_icon) || !skip_detail)
 		dat += "<td width = 200 align='center'>"
 		if(!skip_photo && preview_icon)
-			send_rsc(usr, icon(icon = preview_icon, icon_state = ""), "species_preview_[name].png")
+			usr << browse_rsc(icon(icon = preview_icon, icon_state = ""), "species_preview_[name].png")
 			dat += "<img src='species_preview_[name].png' width='64px' height='64px'><br/><br/>"
 		if(!skip_detail)
 			dat += "<small>"
@@ -779,18 +764,10 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 					dat += "</br><b>Vulnerable to [kind].</b>"
 				else if(damage_types[kind] < 1)
 					dat += "</br><b>Resistant to [kind].</b>"
-			if(breath_type)
-				var/decl/material/mat = decls_repository.get_decl(breath_type)
-				dat += "</br><b>They breathe [mat.gas_name].</b>"
-			if(exhale_type)
-				var/decl/material/mat = decls_repository.get_decl(exhale_type)
-				dat += "</br><b>They exhale [mat.gas_name].</b>"
+			dat += "</br><b>They breathe [gas_data.name[breath_type]].</b>"
+			dat += "</br><b>They exhale [gas_data.name[exhale_type]].</b>"
 			if(LAZYLEN(poison_types))
-				var/list/poison_names = list()
-				for(var/g in poison_types)
-					var/decl/material/mat = decls_repository.get_decl(exhale_type)
-					poison_names |= mat.gas_name
-				dat += "</br><b>[capitalize(english_list(poison_names))] [LAZYLEN(poison_names) == 1 ? "is" : "are"] poisonous to them.</b>"
+				dat += "</br><b>[capitalize(english_list(poison_types))] [LAZYLEN(poison_types) == 1 ? "is" : "are"] poisonous to them.</b>"
 			dat += "</small>"
 		dat += "</td>"
 	dat += "</tr>"
@@ -806,14 +783,13 @@ The slots that you can use are found in items_clothing.dm and are the inventory 
 
 /datum/species/proc/skills_from_age(age)	//Converts an age into a skill point allocation modifier. Can be used to give skill point bonuses/penalities not depending on job.
 	switch(age)
-		if(0 to 22) 	. = -4
-		if(23 to 30) 	. = 0
-		if(31 to 45)	. = 4
+		if(0 to 22) 	. = 8
+		if(23 to 30) 	. = 8
+		if(31 to 45)	. = 8
 		else			. = 8
 
 /datum/species/proc/post_organ_rejuvenate(var/obj/item/organ/org, var/mob/living/carbon/human/H)
-	if(org && (org.species ? org.species.is_crystalline : is_crystalline))
-		org.status |= (ORGAN_BRITTLE|ORGAN_CRYSTAL)
+	return
 
 /datum/species/proc/check_no_slip(var/mob/living/carbon/human/H)
 	if(can_overcome_gravity(H))
