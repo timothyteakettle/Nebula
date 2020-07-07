@@ -1,5 +1,5 @@
 // Species flags.
-#define SPECIES_FLAG_NO_MINOR_CUT               0x0001  // Can step on broken glass with no ill-effects. Either thick skin, cut resistant (slimes) or incorporeal (shadows)
+#define SPECIES_FLAG_NO_MINOR_CUT               0x0001  // Can step on broken glass with no ill-effects. Either thick skin (diona/vox), cut resistant (slimes) or incorporeal (shadows)
 #define SPECIES_FLAG_IS_PLANT                   0x0002  // Is a treeperson.
 #define SPECIES_FLAG_NO_SCAN                    0x0004  // Cannot be scanned in a DNA machine/genome-stolen.
 #define SPECIES_FLAG_NO_PAIN                    0x0008  // Cannot suffer halloss/recieves deceptive health indicator.
@@ -10,6 +10,8 @@
 #define SPECIES_FLAG_NO_BLOCK                   0x0100  // Unable to block or defend itself from attackers.
 #define SPECIES_FLAG_NEED_DIRECT_ABSORB         0x0200  // This species can only have their DNA taken by direct absorption.
 #define SPECIES_FLAG_LOW_GRAV_ADAPTED           0x0400  // This species is used to lower than standard gravity, affecting stamina in high-grav
+#define SPECIES_FLAG_NO_HUNGER                  0x0400  // This species doesn't need to eat.
+#define SPECIES_FLAG_NO_THIRST                  0x0800  // Despite being on an ERP server, this species doesn't need to thirst.
 
 // unused: 0x8000 - higher than this will overflow
 
@@ -17,7 +19,10 @@
 #define SPECIES_IS_WHITELISTED               0x1    // Must be whitelisted to play.
 #define SPECIES_IS_RESTRICTED                0x2    // Is not a core/normally playable species. (castes, mutantraces)
 #define SPECIES_CAN_JOIN                     0x4    // Species is selectable in chargen.
-#define SPECIES_NO_ROBOTIC_INTERNAL_ORGANS   0x8    // Species cannot start with robotic organs or have them attached.
+#define SPECIES_NO_FBP_CONSTRUCTION          0x8    // FBP of this species can't be made in-game.
+#define SPECIES_NO_FBP_CHARGEN               0x10   // FBP of this species can't be selected at chargen.
+#define SPECIES_NO_ROBOTIC_INTERNAL_ORGANS   0x20   // Species cannot start with robotic organs or have them attached.
+#define SPECIES_NO_LACE						 0x40   // Species cannot have laces.
 
 // Species appearance flags
 #define HAS_SKIN_TONE_NORMAL                                                      0x1    // Skin tone selectable in chargen for baseline humans (0-220)

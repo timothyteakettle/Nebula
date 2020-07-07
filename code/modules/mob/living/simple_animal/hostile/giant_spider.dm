@@ -299,7 +299,7 @@ Nurse caste procs
 		var/mob/living/carbon/human/H = .
 		if(prob(infest_chance) && max_eggs)
 			var/obj/item/organ/external/O = pick(H.organs)
-			if(!BP_IS_PROSTHETIC(O) && !BP_IS_CRYSTAL(O) && (LAZYLEN(O.implants) < 2))
+			if(!BP_IS_ROBOTIC(O) && !BP_IS_CRYSTAL(O) && (LAZYLEN(O.implants) < 2))
 				var/eggs = new /obj/effect/spider/eggcluster(O, src)
 				O.implants += eggs
 				max_eggs--
@@ -365,7 +365,7 @@ Nurse caste procs
 
 						if(O.anchored)
 							continue
-						
+
 						if(is_type_in_list(O, cocoon_blacklist))
 							continue
 
@@ -438,7 +438,7 @@ Hunter caste procs
 	. = ..()
 	if(!isnull(first_stop_automation))
 		stop_automation = first_stop_automation
-	
+
 /mob/living/simple_animal/hostile/giant_spider/hunter/throw_impact(atom/hit_atom)
 	if(isliving(hit_atom))
 		var/mob/living/target = hit_atom

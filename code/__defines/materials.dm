@@ -105,27 +105,36 @@
 #define MAT_YEW                     /decl/material/solid/wood/yew
 
 // skins and bones
-#define MAT_SKIN_GENERIC            /decl/material/solid/skin
-#define MAT_SKIN_LIZARD             /decl/material/solid/skin/lizard
-#define MAT_SKIN_CHITIN             /decl/material/solid/skin/insect
-#define MAT_SKIN_FUR                /decl/material/solid/skin/fur
-#define MAT_SKIN_FUR_GRAY           /decl/material/solid/skin/fur/gray
-#define MAT_SKIN_FUR_WHITE          /decl/material/solid/skin/fur/white
-#define MAT_SKIN_GOATHIDE           /decl/material/solid/skin/goat
-#define MAT_SKIN_COWHIDE            /decl/material/solid/skin/cow
-#define MAT_SKIN_SHARK              /decl/material/solid/skin/shark
-#define MAT_SKIN_FISH               /decl/material/solid/skin/fish
-#define MAT_SKIN_FUR_ORANGE         /decl/material/solid/skin/fur/orange
-#define MAT_SKIN_FUR_BLACK          /decl/material/solid/skin/fur/black
-#define MAT_SKIN_FUR_HEAVY          /decl/material/solid/skin/fur/heavy
-#define MAT_SKIN_FISH_PURPLE        /decl/material/solid/skin/fish/purple
-#define MAT_SKIN_FEATHERS           /decl/material/solid/skin/feathers
-#define MAT_SKIN_FEATHERS_PURPLE    /decl/material/solid/skin/feathers/purple
-#define MAT_SKIN_FEATHERS_BLUE      /decl/material/solid/skin/feathers/blue
-#define MAT_SKIN_FEATHERS_GREEN     /decl/material/solid/skin/feathers/green
-#define MAT_SKIN_FEATHERS_BROWN     /decl/material/solid/skin/feathers/brown
-#define MAT_SKIN_FEATHERS_RED       /decl/material/solid/skin/feathers/red
-#define MAT_SKIN_FEATHERS_BLACK     /decl/material/solid/skin/feathers/black
+#define MATERIAL_SKIN_GENERIC            "skin"
+#define MATERIAL_SKIN_LIZARD             "lizardskin"
+#define MATERIAL_SKIN_CHITIN             "chitin"
+#define MATERIAL_SKIN_FUR                "brown fur"
+#define MATERIAL_SKIN_FUR_GRAY           "gray fur"
+#define MATERIAL_SKIN_FUR_WHITE          "white fur"
+#define MATERIAL_SKIN_GOATHIDE           "goathide"
+#define MATERIAL_SKIN_COWHIDE            "cowhide"
+#define MATERIAL_SKIN_SHARK              "sharkskin"
+#define MATERIAL_SKIN_FISH               "fishskin"
+#define MATERIAL_SKIN_FUR_ORANGE         "orange fur"
+#define MATERIAL_SKIN_FUR_BLACK          "black fur"
+#define MATERIAL_SKIN_FUR_HEAVY          "heavy fur"
+#define MATERIAL_SKIN_FISH_PURPLE        "purple fishskin"
+#define MATERIAL_SKIN_FEATHERS           "white feathers"
+#define MATERIAL_SKIN_FEATHERS_PURPLE    "purple feathers"
+#define MATERIAL_SKIN_FEATHERS_BLUE      "blue feathers"
+#define MATERIAL_SKIN_FEATHERS_GREEN     "green feathers"
+#define MATERIAL_SKIN_FEATHERS_BROWN     "brown feathers"
+#define MATERIAL_SKIN_FEATHERS_RED       "red feathers"
+#define MATERIAL_SKIN_FEATHERS_BLACK     "black feathers"
+
+#define MATERIAL_BONE_GENERIC            "bone"
+#define MATERIAL_BONE_CARTILAGE          "cartilage"
+#define MATERIAL_BONE_FISH               "fishbone"
+
+#define MATERIAL_LEATHER_GENERIC         "leather"
+#define MATERIAL_LEATHER_LIZARD          "scaled hide"
+#define MATERIAL_LEATHER_FUR             "furred hide"
+#define MATERIAL_LEATHER_CHITIN          "treated chitin"
 
 #define MAT_BONE_GENERIC            /decl/material/solid/bone
 #define MAT_BONE_CARTILAGE          /decl/material/solid/bone/cartilage

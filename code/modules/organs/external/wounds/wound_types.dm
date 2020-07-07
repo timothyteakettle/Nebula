@@ -276,7 +276,7 @@ datum/wound/puncture/massive
 	switch(losstype)
 		if(DROPLIMB_EDGE, DROPLIMB_BLUNT)
 			damage_type = CUT
-			if(BP_IS_PROSTHETIC(lost_limb))
+			if(BP_IS_ROBOTIC(lost_limb))
 				max_bleeding_stage = -1
 				bleed_threshold = INFINITY
 				if(lost_limb.is_robotic())

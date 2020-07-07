@@ -35,6 +35,7 @@
 #define FIRE_DAMAGE_MODIFIER 0.0215 // Higher values result in more external fire damage to the skin. (default 0.0215)
 #define  AIR_DAMAGE_MODIFIER 2.025  // More means less damage from hot air scalding lungs, less = more damage. (default 2.025)
 
+
 // Organ defines.
 #define ORGAN_CUT_AWAY   (1<<0)  // The organ is in the process of being surgically removed.
 #define ORGAN_BLEEDING   (1<<1)  // The organ is currently bleeding.
@@ -46,7 +47,7 @@
 #define ORGAN_DISFIGURED (1<<8)  // The organ is scarred/disfigured. Alters whether or not the face can be recognised.
 #define ORGAN_SABOTAGED  (1<<9)  // The organ will explode if exposed to EMP, if prosthetic.
 #define ORGAN_ASSISTED   (1<<10) // The organ is partially prosthetic. No mechanical effect.
-#define ORGAN_PROSTHETIC (1<<11) // The organ is prosthetic. Changes numerous behaviors, search BP_IS_PROSTHETIC for checks.
+#define ORGAN_ROBOTIC    (1<<11) // The organ is robotic. Changes numerous behaviors, search BP_IS_ROBOTIC for checks.
 #define ORGAN_BRITTLE    (1<<12) // The organ takes additional blunt damage. If robotic, cannot be repaired through normal means.
 #define ORGAN_CRYSTAL    (1<<13) // The organ does not suffer laser damage, but shatters on droplimb.
 

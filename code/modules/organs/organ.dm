@@ -109,7 +109,7 @@ var/list/organ_cache = list()
 	if(is_preserved())
 		return
 	//Process infections
-	if (BP_IS_PROSTHETIC(src) || (owner && owner.species && (owner.species.species_flags & SPECIES_FLAG_IS_PLANT)))
+	if (BP_IS_ROBOTIC(src) || (owner && owner.species && (owner.species.species_flags & SPECIES_FLAG_IS_PLANT)))
 		germ_level = 0
 		return
 
@@ -185,7 +185,7 @@ var/list/organ_cache = list()
 	// immunosuppressant that changes transplant data to make it match.
 	if(owner.get_immunity() < 10) //for now just having shit immunity will suppress it
 		return
-	if(BP_IS_PROSTHETIC(src))
+	if(BP_IS_ROBOTIC(src))
 		return
 	if(dna)
 		if(!rejecting)
@@ -277,7 +277,7 @@ var/list/organ_cache = list()
 
 	START_PROCESSING(SSobj, src)
 	rejecting = null
-	if(!BP_IS_PROSTHETIC(src) && species && reagents?.total_volume < 5)
+	if(!BP_IS_ROBOTIC(src) && species && reagents?.total_volume < 5)
 		owner.vessel.trans_to(src, 5 - reagents.total_volume, 1, 1)
 
 	if(owner && vital)
@@ -291,7 +291,7 @@ var/list/organ_cache = list()
 	owner = target
 	action_button_name = initial(action_button_name)
 	forceMove(owner) //just in case
-	if(BP_IS_PROSTHETIC(src))
+	if(BP_IS_ROBOTIC(src))
 		set_dna(owner.dna)
 	return 1
 
@@ -320,7 +320,7 @@ var/list/organ_cache = list()
 	target.attackby(O, user)
 
 /obj/item/organ/proc/can_feel_pain()
-	return (!BP_IS_PROSTHETIC(src) && (!species || !(species.species_flags & SPECIES_FLAG_NO_PAIN)))
+	return (!BP_IS_ROBOTIC(src) && (!species || !(species.species_flags & SPECIES_FLAG_NO_PAIN)))
 
 /obj/item/organ/proc/is_usable()
 	return !(status & (ORGAN_CUT_AWAY|ORGAN_MUTATED|ORGAN_DEAD))
@@ -334,7 +334,7 @@ var/list/organ_cache = list()
 		. += tag ? "<span class='average'>Crystalline</span>" : "Crystalline"
 	else if(BP_IS_ASSISTED(src))
 		. += tag ? "<span class='average'>Assisted</span>" : "Assisted"
-	else if(BP_IS_PROSTHETIC(src))
+	else if(BP_IS_ROBOTIC(src))
 		. += tag ? "<span class='average'>Mechanical</span>" : "Mechanical"
 	if(status & ORGAN_CUT_AWAY)
 		. += tag ? "<span class='bad'>Severed</span>" : "Severed"

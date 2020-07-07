@@ -20,7 +20,7 @@
 	if(isnull(full_prosthetic))
 		robolimb_count = 0
 		for(var/obj/item/organ/external/E in organs)
-			if(BP_IS_PROSTHETIC(E))
+			if(BP_IS_ROBOTIC(E))
 				robolimb_count++
 		full_prosthetic = (robolimb_count == organs.len)
 		update_emotes()
@@ -618,7 +618,7 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 	var/obj/item/organ/internal/heart/L = internal_organs_by_name[BP_HEART]
 	if(!istype(L))
 		return 0
-	if(BP_IS_PROSTHETIC(L))
+	if(BP_IS_ROBOTIC(L))
 		return 0//Robotic hearts don't get jittery.
 	if(src.jitteriness >= 400 && prob(5)) //Kills people if they have high jitters.
 		if(prob(1))

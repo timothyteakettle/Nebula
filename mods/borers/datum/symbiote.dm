@@ -106,7 +106,7 @@ GLOBAL_LIST_INIT(symbiote_starting_points, new)
 		if(H.stat == DEAD || !H.client || !H.ckey || !H.internal_organs_by_name[BP_BRAIN])
 			continue
 		var/obj/item/organ/external/head = H.get_organ(BP_HEAD)
-		if(BP_IS_PROSTHETIC(head) || BP_IS_CRYSTAL(head) || head.has_growths())
+		if(BP_IS_ROBOTIC(head) || BP_IS_CRYSTAL(head) || head.has_growths())
 			continue
 		var/decl/cultural_info/culture/symbiotic/culture = H.get_cultural_value(TAG_CULTURE)
 		if(!istype(culture) || culture.matches_to_role != type)
@@ -116,7 +116,7 @@ GLOBAL_LIST_INIT(symbiote_starting_points, new)
 			return
 
 /datum/job/symbiote/is_position_available()
-	. = ..() && length(find_valid_hosts(TRUE)) 
+	. = ..() && length(find_valid_hosts(TRUE))
 
 /obj/effect/landmark/symbiote_start
 	name = "Symbiote Start"

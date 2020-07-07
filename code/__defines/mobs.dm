@@ -8,11 +8,26 @@
 #define CANWEAKEN   0x2
 #define CANPARALYSE 0x4
 #define CANPUSH     0x8
-#define PASSEMOTES  0x10    // Mob has a holder inside of it that need to see emotes.
+#define PASSEMOTES  0x10    // Mob has a cortical borer or holders inside of it that need to see emotes.
 #define GODMODE     0x1000
 #define FAKEDEATH   0x2000  // Replaces stuff like changeling.changeling_fakedeath.
 #define NO_ANTAG    0x4000  // Players are restricted from gaining antag roles when occupying this mob
-#define ENABLE_AI	0x8000	// Regardless of player control, the mob is using AI.
+
+// Grab Types
+#define GRAB_NORMAL			"normal"
+#define GRAB_NAB			"nab"
+#define GRAB_NAB_SPECIAL	"special nab"
+
+// Grab levels.
+#define NORM_PASSIVE    "normal passive"
+#define NORM_STRUGGLE   "normal struggle"
+#define NORM_AGGRESSIVE "normal aggressive"
+#define NORM_NECK       "normal neck"
+#define NORM_KILL       "normal kill"
+
+#define NAB_PASSIVE		"nab passive"
+#define NAB_AGGRESSIVE	"nab aggressive"
+#define NAB_KILL		"nab kill"
 
 #define BORGMESON 0x1
 #define BORGTHERM 0x2
@@ -87,7 +102,7 @@
 #define MIN_SUPPLIED_LAW_NUMBER 15
 #define MAX_SUPPLIED_LAW_NUMBER 50
 
-// Corporate alignment for the character
+// NT's alignment towards the character
 #define COMPANY_LOYAL 			"Loyal"
 #define COMPANY_SUPPORTATIVE	"Supportive"
 #define COMPANY_NEUTRAL 		"Neutral"
@@ -99,9 +114,9 @@
 // Defines mob sizes, used by lockers and to determine what is considered a small sized mob, etc.
 #define MOB_SIZE_LARGE  		40
 #define MOB_SIZE_MEDIUM 		20
-#define MOB_SIZE_SMALL 		10
-#define MOB_SIZE_TINY 		5
-#define MOB_SIZE_MINISCULE	1
+#define MOB_SIZE_SMALL 			10
+#define MOB_SIZE_TINY 			5
+#define MOB_SIZE_MINISCULE		1
 
 // Defines how strong the species is compared to humans. Think like strength in D&D
 #define STR_VHIGH       2
@@ -111,6 +126,7 @@
 #define STR_VLOW       -2
 
 // Gluttony levels.
+#define GLUT_NONE 0
 #define GLUT_TINY 1       // Eat anything tiny and smaller
 #define GLUT_SMALLER 2    // Eat anything smaller than we are
 #define GLUT_ANYTHING 4   // Eat anything, ever
@@ -179,7 +195,9 @@
 #define BP_GBLADDER "gas bladder"
 #define BP_POLYP    "polyp segment"
 #define BP_ANCHOR   "anchoring ligament"
+#define BP_PHORON   "phoron filter"
 #define BP_ACETONE  "acetone reactor"
+#define BP_SLIMECORE "slime core"
 
 // Vox bits.
 #define BP_HINDTONGUE "hindtongue"
@@ -225,10 +243,10 @@
 #define BP_BY_DEPTH list(BP_HEAD, BP_L_HAND, BP_R_HAND, BP_L_ARM, BP_R_ARM, BP_L_FOOT, BP_R_FOOT, BP_L_LEG, BP_R_LEG, BP_GROIN, BP_CHEST)
 
 // Prosthetic helpers.
-#define BP_IS_PROSTHETIC(org) (org.status & ORGAN_PROSTHETIC)
-#define BP_IS_ASSISTED(org)   (org.status & ORGAN_ASSISTED)
-#define BP_IS_BRITTLE(org)    (org.status & ORGAN_BRITTLE)
-#define BP_IS_CRYSTAL(org)    (org.status & ORGAN_CRYSTAL)
+#define BP_IS_ROBOTIC(org)  (org.status & ORGAN_ROBOTIC)
+#define BP_IS_ASSISTED(org) (org.status & ORGAN_ASSISTED)
+#define BP_IS_BRITTLE(org)  (org.status & ORGAN_BRITTLE)
+#define BP_IS_CRYSTAL(org)  (org.status & ORGAN_CRYSTAL)
 
 // Limb flag helpers
 #define BP_IS_DEFORMED(org) (org.limb_flags & ORGAN_FLAG_DEFORMED)
@@ -271,14 +289,48 @@
 #define CORPSE_CAN_REENTER 1
 #define CORPSE_CAN_REENTER_AND_RESPAWN 2
 
-#define SPECIES_HUMAN            "Human"
-#define SPECIES_MONKEY           "Monkey"
-#define SPECIES_ALIEN            "Humanoid"
-#define SPECIES_GOLEM            "Golem"
+#define SPECIES_HUMAN       "Human"
+#define SPECIES_DIONA       "Diona"
+#define SPECIES_VOX         "Vox"
+#define SPECIES_VOX_ARMALIS "Vox Armalis"
+#define SPECIES_VOXPARIAH   "Vox Pariah"
+#define SPECIES_IPC         "Machine"
+#define SPECIES_UNATHI      "Unathi"
+#define SPECIES_SERGAL      "Sergal"
+#define SPECIES_NORTHERN    "Northern Sergal"
+#define SPECIES_EASTERN     "Eastern Sergal"
+#define SPECIES_SKRELL      "Skrell"
+#define SPECIES_PROMETHEAN  "Promethean"
+#define SPECIES_ALIEN       "Humanoid"
+#define SPECIES_ADHERENT    "Adherent"
+#define SPECIES_GOLEM       "Golem"
+#define SPECIES_YEOSA       "Yeosa'Unathi"
+#define SPECIES_VATGROWN    "Vat-Grown Human"
+#define SPECIES_SPACER      "Space-Adapted Human"
+#define SPECIES_TRITONIAN   "Tritonian"
+#define SPECIES_GRAVWORLDER "Grav-Adapted Human"
+#define SPECIES_MULE        "Mule"
+#define SPECIES_BOOSTER     "Booster"
+#define SPECIES_PLASMASANS  "Phoron Restructurant Human"
+#define SPECIES_MONKEY		"Monkey"
 
-#define BODYTYPE_HUMANOID        "Humanoid Body"
-#define BODYTYPE_OTHER           "Alien Body"
-#define BODYTYPE_MONKEY          "Small Humanoid Body"
+
+#define SPECIES_AKULA       "Akula"
+#define SPECIES_CUSTOM      "Genemodder"
+#define SPECIES_VULP        "Vulpkanin"
+#define SPECIES_VASS        "Vasilissan"
+#define SPECIES_TAJ         "Tajaran"
+#define SPECIES_OLDUNATHI   "Veteris'Unathi" //Placeholder name.
+#define SPECIES_HUMAN2      "Custom Human" //Placeholder name maybe.
+
+#define UNRESTRICTED_SPECIES list(SPECIES_NABBER,SPECIES_PROMETHEAN,SPECIES_YEOSA,SPECIES_EASTERN,SPECIES_NORTHERN,SPECIES_SERGAL,SPECIES_HUMAN,SPECIES_DIONA,SPECIES_IPC,SPECIES_UNATHI,SPECIES_SKRELL,SPECIES_TRITONIAN,SPECIES_SPACER,SPECIES_VATGROWN,SPECIES_GRAVWORLDER,SPECIES_BOOSTER,SPECIES_MULE,SPECIES_AKULA,SPECIES_CUSTOM,SPECIES_VULP,SPECIES_TAJ,SPECIES_OLDUNATHI,SPECIES_HUMAN2)
+#define RESTRICTED_SPECIES   list(SPECIES_VOX,SPECIES_VOX_ARMALIS,SPECIES_ALIEN,SPECIES_GOLEM,SPECIES_MANTID_GYNE,SPECIES_MANTID_ALATE,SPECIES_MONARCH_WORKER,SPECIES_MONARCH_QUEEN)
+
+#define SPECIES_NABBER         "giant armoured serpentid"
+#define SPECIES_MONARCH_WORKER "Monarch Serpentid Worker"
+#define SPECIES_MONARCH_QUEEN  "Monarch Serpentid Queen"
+#define SPECIES_MANTID_ALATE   "Kharmaan Alate"
+#define SPECIES_MANTID_GYNE    "Kharmaan Gyne"
 
 #define SURGERY_CLOSED 0
 #define SURGERY_OPEN 1
@@ -319,6 +371,9 @@
 
 #define MARKING_TARGET_SKIN 0 // Draw a datum/sprite_accessory/marking to the mob's body, eg. tattoos
 #define MARKING_TARGET_HAIR 1 // Draw a datum/sprite_accessory/marking to the mob's hair, eg. ears & horns
+#define MODIFIER_STACK_FORBID	1	// Disallows stacking entirely.
+#define MODIFIER_STACK_EXTEND	2	// Disallows a second instance, but will extend the first instance if possible.
+#define MODIFIER_STACK_ALLOWED	3	// Multiple instances are allowed.
 
 #define DEXTERITY_NONE            0
 #define DEXTERITY_SIMPLE_MACHINES 1
@@ -330,6 +385,9 @@
 #define DEXTERITY_FULL            7
 
 // used in /mob/living/carbon/human/can_inject, and by various callers of that proc
+
 #define CAN_INJECT 1
 #define INJECTION_PORT 2
 #define INJECTION_PORT_DELAY 3 SECONDS // used by injectors to apply delay due to searching for a port on the injectee's suit
+
+#define ENABLE_AI	0x8000	// Regardless of player control, the mob is using AI.

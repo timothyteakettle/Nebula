@@ -14,7 +14,7 @@ GLOBAL_VAR_INIT(arrest_security_status, "Arrest")
 	//More variables below.
 	var/list/grants = list()	// List of weakrefs to grant files.
 	var/user_id					// A unique identifier linking a mob/player/user to this access record and their grants.
-	
+
 /datum/computer_file/report/crew_record/New()
 	..()
 	filename = "record[random_id(type, 100,999)]"
@@ -106,12 +106,12 @@ GLOBAL_VAR_INIT(arrest_security_status, "Arrest")
 		else
 			var/organ_data = list("\[*\]")
 			for(var/obj/item/organ/external/E in H.organs)
-				if(BP_IS_PROSTHETIC(E))
+				if(BP_IS_ROBOTIC(E))
 					organ_data += "[E.model ? "[E.model] " : null][E.name] prosthetic"
 			for(var/obj/item/organ/internal/I in H.internal_organs)
 				if(BP_IS_ASSISTED(I))
 					organ_data += I.get_mechanical_assisted_descriptor()
-				else if (BP_IS_PROSTHETIC(I))
+				else if (BP_IS_ROBOTIC(I))
 					organ_data += "[I.name] prosthetic"
 			set_implants(jointext(organ_data, "\[*\]"))
 

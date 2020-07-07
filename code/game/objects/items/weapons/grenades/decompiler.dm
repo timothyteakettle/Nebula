@@ -29,7 +29,7 @@
 	var/lifetime = 10 SECONDS
 	var/expiry_time
 	var/list/decompiled_matter
-	
+
 /obj/effect/decompiler/Initialize()
 	. = ..()
 	expiry_time = world.time + lifetime
@@ -92,7 +92,7 @@
 			var/atom/movable/thing = pick_n_take(eating)
 			if(QDELETED(thing) || !istype(thing) || !thing.simulated || thing.anchored || prob(15))
 				continue
-			
+
 			if(prob(30))
 
 				if(ismob(thing) && prob(50))
@@ -104,12 +104,12 @@
 				if(ishuman(thing))
 					var/mob/living/carbon/human/H = thing
 					for(var/obj/item/organ/external/limb in H.organs)
-						if(BP_IS_PROSTHETIC(limb) && !limb.is_stump() && !length(limb.children))
+						if(BP_IS_ROBOTIC(limb) && !limb.is_stump() && !length(limb.children))
 							limb.droplimb()
 							limb.forceMove(src)
 							thing = limb
 							break
-						
+
 			if(isitem(thing))
 				var/obj/item/eating_obj = thing
 				for(var/mat in eating_obj.matter)

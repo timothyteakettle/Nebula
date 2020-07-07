@@ -38,7 +38,7 @@
 	if(is_broken())
 		filter_effect -= 2
 	// Robotic organs filter better but don't get benefits from antitoxins for filtering.
-	if(BP_IS_PROSTHETIC(src))
+	if(BP_IS_ROBOTIC(src))
 		filter_effect += 1
 	else if(owner.chem_effects[CE_ANTITOX])
 		filter_effect += 1

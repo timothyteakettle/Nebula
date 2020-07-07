@@ -2,14 +2,18 @@
 	Global associative list for caching humanoid icons.
 	Index format m or f, followed by a string of 0 and 1 to represent bodyparts followed by husk fat hulk skeleton 1 or 0.
 	TODO: Proper documentation
-	icon_key is [species.get_icon_cache_uid(src)][g][husk][fat][hulk][skeleton][skin_tone]
+	icon_key is [species.race_key][g][husk][fat][hulk][skeleton][s_tone]
 */
 var/global/list/human_icon_cache = list()
-var/global/list/tail_icon_cache = list() //key is [species.get_icon_cache_uid(src)][skin_colour]
+var/global/list/tail_icon_cache = list() //key is [species.race_key][r_skin][g_skin][b_skin]
 var/global/list/light_overlay_cache = list()
 
-/proc/overlay_image(icon,icon_state,color,flags)
+/proc/overlay_image(icon,icon_state,color,flags, plane, layer)
 	var/image/ret = image(icon,icon_state)
+	if(plane)
+		ret.plane = plane
+	if(layer)
+		ret.layer = layer
 	ret.color = color
 	ret.appearance_flags = flags
 	return ret
@@ -137,8 +141,10 @@ Please contact me on #coderbus IRC. ~Carn x
 #define HO_HANDCUFF_LAYER   23
 #define HO_L_HAND_LAYER     24
 #define HO_R_HAND_LAYER     25
-#define HO_FIRE_LAYER       26 //If you're on fire
-#define TOTAL_LAYERS        26
+#define WING_LAYER			26		//BastionStation edit. Simply move this up a number if things are added.
+#define TAIL_LAYER_ALT		27	//BastionStation edit. Simply move this up a number if things are added.
+#define HO_FIRE_LAYER       28 //If you're on fire
+#define TOTAL_LAYERS        28	//BASTION EDIT - KEEP THIS UPDATED
 //////////////////////////////////
 
 /mob/living/carbon/human
@@ -234,8 +240,8 @@ var/global/list/damage_icon_parts = list()
 		O.update_icon()
 		if(O.damage_state == "00") continue
 		var/icon/DI
-		var/use_colour = (BP_IS_PROSTHETIC(O) ? SYNTH_BLOOD_COLOUR : O.species.get_blood_colour(src))
-		var/cache_index = "[O.damage_state]/[O.icon_name]/[use_colour]/[species.name]"
+		var/use_colour = (BP_IS_ROBOTIC(O) ? SYNTH_BLOOD_COLOUR : O.species.get_blood_colour(src))
+		var/cache_index = "[O.damage_state]/[O.icon_name]/[use_colour]/[species.get_bodytype(src)]"
 		if(damage_icon_parts[cache_index] == null)
 			DI = new /icon(species.get_damage_overlays(src), O.damage_state)			// the damage icon for whole human
 			DI.Blend(new /icon(species.get_damage_mask(src), O.icon_name), ICON_MULTIPLY)	// mask with this organ's pixels
@@ -290,13 +296,16 @@ var/global/list/damage_icon_parts = list()
 	if(gender == FEMALE)
 		g = "female"
 
-	var/icon_key = "[species.get_icon_cache_uid(src)][g][skin_tone][skin_colour]"
+	var/icon_key = "[species.get_race_key(src)][g][s_tone][r_skin][g_skin][b_skin]"
 	if(lip_style)
 		icon_key += "[lip_style]"
 	else
 		icon_key += "nolips"
 	var/obj/item/organ/internal/eyes/eyes = internal_organs_by_name[species.vision_organ ? species.vision_organ : BP_EYES]
-	icon_key += istype(eyes) ? eyes.eye_colour : COLOR_BLACK
+	if(istype(eyes))
+		icon_key += "[rgb(eyes.eye_colour[1], eyes.eye_colour[2], eyes.eye_colour[3])]"
+	else
+		icon_key += "#000000"
 
 	for(var/organ_tag in species.has_limbs)
 		var/obj/item/organ/external/part = organs_by_name[organ_tag]
@@ -306,20 +315,20 @@ var/global/list/damage_icon_parts = list()
 		for(var/M in part.markings)
 			icon_key += "[M][part.markings[M]["color"]]"
 		if(part)
-			icon_key += "[part.species.get_icon_cache_uid(part.owner)]"
+			icon_key += "[part.species.get_race_key(part.owner)]"
 			icon_key += "[part.dna.GetUIState(DNA_UI_GENDER)]"
-			icon_key += "[part.skin_tone]"
-			icon_key += "[part.skin_base]"
-			if(part.skin_colour)
-				icon_key += "[part.skin_colour]"
-				icon_key += "[part.skin_blend]"
-			if(part.body_hair && part.hair_colour)
-				icon_key += "[part.hair_colour]"
+			icon_key += "[part.s_tone]"
+			icon_key += "[part.s_base]"
+			if(part.s_col && part.s_col.len >= 3)
+				icon_key += "[rgb(part.s_col[1],part.s_col[2],part.s_col[3])]"
+				icon_key += "[part.s_col_blend]"
+			if(part.body_hair && part.h_col && part.h_col.len >= 3)
+				icon_key += "[rgb(part.h_col[1],part.h_col[2],part.h_col[3])]"
 			else
-				icon_key += COLOR_BLACK
+				icon_key += "#000000"
 			for(var/M in part.markings)
 				icon_key += "[M][part.markings[M]["color"]]"
-		if(BP_IS_PROSTHETIC(part))
+		if(BP_IS_ROBOTIC(part))
 			icon_key += "2[part.model ? "-[part.model]": ""]"
 		else if(part.status & ORGAN_DEAD)
 			icon_key += "3"
@@ -383,6 +392,7 @@ var/global/list/damage_icon_parts = list()
 
 	//tail
 	update_tail_showing(0)
+	update_wing_showing() // BastionStation edit
 
 	if(update_icons)
 		queue_icon_update()
@@ -606,9 +616,11 @@ var/global/list/damage_icon_parts = list()
 	if(wear_suit)
 		overlays_standing[HO_SUIT_LAYER]	= wear_suit.get_mob_overlay(src,slot_wear_suit_str)
 		update_tail_showing(0)
+		update_wing_showing()	//BastionStation edit
 	else
 		overlays_standing[HO_SUIT_LAYER]	= null
 		update_tail_showing(0)
+		update_wing_showing()	//BastionStation edit
 		update_inv_w_uniform(0)
 		update_inv_shoes(0)
 		update_inv_gloves(0)
@@ -684,31 +696,46 @@ var/global/list/damage_icon_parts = list()
 
 /mob/living/carbon/human/proc/update_tail_showing(var/update_icons=1)
 	overlays_standing[HO_TAIL_LAYER] = null
-
+// BastionStation Edit - START
+	var/used_tail_layer = tail_alt ? TAIL_LAYER_ALT : HO_TAIL_LAYER
 	var/species_tail = species.get_tail(src)
+	var/image/vr_tail_image = get_tail_image()
 
-	if(species_tail && !(wear_suit && wear_suit.flags_inv & HIDETAIL))
+	if(vr_tail_image)
+		vr_tail_image.layer = used_tail_layer
+		overlays_standing[HO_TAIL_LAYER] = vr_tail_image
+		animate_tail_reset(0)
+		if(update_icons)
+			queue_icon_update()
+
+	else if(species_tail && !(wear_suit && wear_suit.flags_inv & HIDETAIL))
 		var/icon/tail_s = get_tail_icon()
 		overlays_standing[HO_TAIL_LAYER] = image(tail_s, icon_state = "[species_tail]_s")
 		animate_tail_reset(0)
+		if(update_icons)
+			queue_icon_update()
 
-	if(update_icons)
-		queue_icon_update()
+// BastionStation Edit - END
 
 /mob/living/carbon/human/proc/get_tail_icon()
-	var/icon_key = "[species.get_icon_cache_uid(src)][skin_colour][hair_colour]"
+	var/icon_key = "[species.get_race_key(src)][r_skin][g_skin][b_skin][r_hair][g_hair][b_hair]"
 	var/icon/tail_icon = tail_icon_cache[icon_key]
 	if(!tail_icon)
 		//generate a new one
 		var/species_tail_anim = species.get_tail_animation(src)
-		if(!species_tail_anim) species_tail_anim = 'icons/effects/species.dmi'
+////////// BastionStation edit -start- Modular species tail memes
+		if(species.modular_tail)
+			species_tail_anim = species.modular_tail
+		else if(!species_tail_anim)
+			species_tail_anim = 'icons/effects/species.dmi'
+////////// BastionStation edit -end-
 		tail_icon = new/icon(species_tail_anim)
-		tail_icon.Blend(skin_colour, species.tail_blend)
+		tail_icon.Blend(rgb(r_skin, g_skin, b_skin), species.tail_blend)
 		// The following will not work with animated tails.
 		var/use_species_tail = species.get_tail_hair(src)
 		if(use_species_tail)
 			var/icon/hair_icon = icon('icons/effects/species.dmi', "[species.get_tail(src)]_[use_species_tail]")
-			hair_icon.Blend(hair_colour, ICON_ADD)
+			hair_icon.Blend(rgb(r_hair, g_hair, b_hair), ICON_ADD)
 			tail_icon.Blend(hair_icon, ICON_OVERLAY)
 		tail_icon_cache[icon_key] = tail_icon
 
@@ -769,6 +796,16 @@ var/global/list/damage_icon_parts = list()
 	if(update_icons)
 		queue_icon_update()
 
+//BastionStation edit START - Wings
+/mob/living/carbon/human/proc/update_wing_showing()
+	if(QDESTROYING(src))
+		return
+
+	var/image/vr_wing_image = get_wing_image()
+	if(vr_wing_image)
+		vr_wing_image.layer = WING_LAYER
+		overlays_standing[WING_LAYER] = vr_wing_image
+//BastionStation edit END - Wings
 
 //Adds a collar overlay above the helmet layer if the suit has one
 //	Suit needs an identically named sprite in icons/mob/collar.dmi
@@ -795,7 +832,7 @@ var/global/list/damage_icon_parts = list()
 	overlays_standing[HO_SURGERY_LAYER] = null
 	var/image/total = new
 	for(var/obj/item/organ/external/E in organs)
-		if(BP_IS_PROSTHETIC(E) || E.is_stump())
+		if(BP_IS_ROBOTIC(E) || E.is_stump())
 			continue
 		var/how_open = round(E.how_open())
 		if(how_open <= 0)

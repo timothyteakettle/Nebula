@@ -160,7 +160,7 @@
 	else if(istype(W,/obj/item/organ))
 		var/obj/item/organ/O = W
 		if((O.organ_tag in products) && istype(O, products[O.organ_tag][1]))
-			if(!BP_IS_PROSTHETIC(O))
+			if(!BP_IS_ROBOTIC(O))
 				to_chat(user, SPAN_WARNING("\The [src] only accepts prosthetic organs."))
 				return
 			var/recycle_worth = Floor(products[O.organ_tag][2] * 0.5)

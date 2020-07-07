@@ -35,7 +35,6 @@
 		if(H.isSynthetic())
 			return TRUE
 		var/obj/item/organ/external/E = H.get_organ(bodypart)
-		if(E && BP_IS_PROSTHETIC(E))
+		if(E && BP_IS_ROBOTIC(E))
 			return TRUE
 		return FALSE
-		

@@ -353,15 +353,15 @@ decl/surgery_step/robotics/get_skill_reqs(mob/living/user, mob/living/carbon/hum
 
 /decl/surgery_step/robotics/fix_organ_robotic/get_skill_reqs(mob/living/user, mob/living/carbon/human/target, obj/item/tool)
 	if(target.isSynthetic())
-		return SURGERY_SKILLS_ROBOTIC 
+		return SURGERY_SKILLS_ROBOTIC
 	else
-		return SURGERY_SKILLS_ROBOTIC_ON_MEAT 
+		return SURGERY_SKILLS_ROBOTIC_ON_MEAT
 
 /decl/surgery_step/robotics/fix_organ_robotic/assess_bodypart(mob/living/user, mob/living/carbon/human/target, target_zone, obj/item/tool)
 	var/obj/item/organ/external/affected = ..()
 	if(affected)
 		for(var/obj/item/organ/internal/I in affected.internal_organs)
-			if(BP_IS_PROSTHETIC(I) && !BP_IS_CRYSTAL(I) && I.damage > 0)
+			if(BP_IS_ROBOTIC(I) && !BP_IS_CRYSTAL(I) && I.damage > 0)
 				if(I.surface_accessible)
 					return affected
 				if(affected.how_open() >= (affected.encased ? SURGERY_ENCASED : SURGERY_RETRACTED) || affected.hatch_state == HATCH_OPENED)
@@ -371,7 +371,7 @@ decl/surgery_step/robotics/get_skill_reqs(mob/living/user, mob/living/carbon/hum
 	var/obj/item/organ/external/affected = target.get_organ(target_zone)
 	for(var/obj/item/organ/I in affected.internal_organs)
 		if(I && I.damage > 0)
-			if(BP_IS_PROSTHETIC(I))
+			if(BP_IS_ROBOTIC(I))
 				user.visible_message("[user] starts mending the damage to [target]'s [I.name]'s mechanisms.", \
 				"You start mending the damage to [target]'s [I.name]'s mechanisms." )
 	..()
@@ -380,7 +380,7 @@ decl/surgery_step/robotics/get_skill_reqs(mob/living/user, mob/living/carbon/hum
 	var/obj/item/organ/external/affected = target.get_organ(target_zone)
 	for(var/obj/item/organ/I in affected.internal_organs)
 		if(I && I.damage > 0)
-			if(BP_IS_PROSTHETIC(I))
+			if(BP_IS_ROBOTIC(I))
 				user.visible_message("<span class='notice'>[user] repairs [target]'s [I.name] with [tool].</span>", \
 				"<span class='notice'>You repair [target]'s [I.name] with [tool].</span>" )
 				I.damage = 0
@@ -456,7 +456,7 @@ decl/surgery_step/robotics/get_skill_reqs(mob/living/user, mob/living/carbon/hum
 	var/list/removable_organs = list()
 	var/obj/item/organ/external/affected = target.get_organ(target_zone)
 	for(var/obj/item/organ/I in affected.implants)
-		if ((I.status & ORGAN_CUT_AWAY) && BP_IS_PROSTHETIC(I) && !BP_IS_CRYSTAL(I) && (I.parent_organ == target_zone))
+		if ((I.status & ORGAN_CUT_AWAY) && BP_IS_ROBOTIC(I) && !BP_IS_CRYSTAL(I) && (I.parent_organ == target_zone))
 			removable_organs |= I.organ_tag
 	var/organ_to_replace = input(user, "Which organ do you want to reattach?") as null|anything in removable_organs
 	if(!organ_to_replace)

@@ -1,6 +1,6 @@
 
 /obj/item/organ/external/proc/get_wounds_desc()
-	if(BP_IS_PROSTHETIC(src))
+	if(BP_IS_ROBOTIC(src))
 		var/list/descriptors = list()
 		if(brute_dam)
 			switch(brute_dam)

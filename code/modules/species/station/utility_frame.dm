@@ -35,12 +35,12 @@
 		"You are dangerously close to overheating!"
 	)
 	unarmed_attacks = list(
-		/decl/natural_attack/stomp, 
-		/decl/natural_attack/kick, 
+		/decl/natural_attack/stomp,
+		/decl/natural_attack/kick,
 		/decl/natural_attack/punch
 	)
 	genders = list(
-		NEUTER, 
+		NEUTER,
 		PLURAL
 	)
 	available_cultural_info = list(
@@ -53,7 +53,7 @@
 
 /datum/species/utility_frame/post_organ_rejuvenate(obj/item/organ/org, mob/living/carbon/human/H)
 	var/obj/item/organ/external/E = org
-	if(istype(E) && !BP_IS_PROSTHETIC(E))
+	if(istype(E) && !BP_IS_ROBOTIC(E))
 		E.robotize(SPECIES_FRAME)
 	var/obj/item/organ/external/head/head = H.organs_by_name[BP_HEAD]
 	if(istype(head))

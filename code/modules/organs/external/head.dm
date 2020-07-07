@@ -110,8 +110,8 @@
 			var/image/eye_glow = get_eye_overlay()
 			if(eye_glow) overlays |= eye_glow
 
-		if(owner.lip_style && !BP_IS_PROSTHETIC(src) && (species && (species.appearance_flags & HAS_LIPS)))
-			var/icon/lip_icon = new/icon(species?.lip_icon || 'icons/mob/human_races/species/lips.dmi', "lipstick_s")	
+		if(owner.lip_style && !BP_IS_ROBOTIC(src) && (species && (species.appearance_flags & HAS_LIPS)))
+			var/icon/lip_icon = new/icon(species?.lip_icon || 'icons/mob/human_races/species/lips.dmi', "lipstick_s")
 			lip_icon.Blend(owner.lip_style, ICON_MULTIPLY)
 			overlays |= lip_icon
 			mob_icon.Blend(lip_icon, ICON_OVERLAY)

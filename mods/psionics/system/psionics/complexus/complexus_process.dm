@@ -31,7 +31,7 @@
 			sound_to(owner, 'sound/effects/psi/power_unlock.ogg')
 			rating = ceil(combined_rank/rank_count)
 			cost_modifier = 1
-			if(rating > 1) 
+			if(rating > 1)
 				cost_modifier -= min(1, max(0.1, (rating-1) / 10))
 			if(!ui)
 				ui = new(owner)
@@ -174,7 +174,7 @@
 			if(heal_internal)
 				for(var/obj/item/organ/I in H.internal_organs)
 
-					if(BP_IS_PROSTHETIC(I) || BP_IS_CRYSTAL(I))
+					if(BP_IS_ROBOTIC(I) || BP_IS_CRYSTAL(I))
 						continue
 
 					if(I.damage > 0 && spend_power(heal_rate))
@@ -187,7 +187,7 @@
 			if(H.bad_external_organs.len)
 				for(var/obj/item/organ/external/E in H.bad_external_organs)
 
-					if(BP_IS_PROSTHETIC(E))
+					if(BP_IS_ROBOTIC(E))
 						continue
 
 					if(heal_internal && (E.status & ORGAN_BROKEN) && E.damage < (E.min_broken_damage * config.organ_health_multiplier)) // So we don't mend and autobreak.

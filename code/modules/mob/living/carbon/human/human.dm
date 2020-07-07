@@ -746,25 +746,31 @@
 		src.verbs -= /mob/living/carbon/human/proc/morph
 		return
 
-	var/new_facial = input("Please select facial hair color.", "Character Generation", facial_hair_colour) as color
+	var/new_facial = input("Please select facial hair color.", "Character Generation",rgb(r_facial,g_facial,b_facial)) as color
 	if(new_facial)
-		facial_hair_colour = new_facial
+		r_facial = hex2num(copytext(new_facial, 2, 4))
+		g_facial = hex2num(copytext(new_facial, 4, 6))
+		b_facial = hex2num(copytext(new_facial, 6, 8))
 
-	var/new_hair = input("Please select hair color.", "Character Generation", hair_colour) as color
-	if(new_hair)
-		hair_colour = new_hair
+	var/new_hair = input("Please select hair color.", "Character Generation",rgb(r_hair,g_hair,b_hair)) as color
+	if(new_facial)
+		r_hair = hex2num(copytext(new_hair, 2, 4))
+		g_hair = hex2num(copytext(new_hair, 4, 6))
+		b_hair = hex2num(copytext(new_hair, 6, 8))
 
-	var/new_eyes = input("Please select eye color.", "Character Generation", eye_colour) as color
+	var/new_eyes = input("Please select eye color.", "Character Generation",rgb(r_eyes,g_eyes,b_eyes)) as color
 	if(new_eyes)
-		eye_colour = new_eyes
+		r_eyes = hex2num(copytext(new_eyes, 2, 4))
+		g_eyes = hex2num(copytext(new_eyes, 4, 6))
+		b_eyes = hex2num(copytext(new_eyes, 6, 8))
 		update_eyes()
 
-	var/new_tone = input("Please select skin tone level: 1-220 (1=albino, 35=caucasian, 150=black, 220='very' black)", "Character Generation", "[35-skin_tone]")  as text
+	var/new_tone = input("Please select skin tone level: 1-220 (1=albino, 35=caucasian, 150=black, 220='very' black)", "Character Generation", "[35-s_tone]")  as text
 
 	if (!new_tone)
 		new_tone = 35
-	skin_tone = max(min(round(text2num(new_tone)), 220), 1)
-	skin_tone = -skin_tone + 35
+	s_tone = max(min(round(text2num(new_tone)), 220), 1)
+	s_tone =  -s_tone + 35
 
 	// hair
 	var/list/all_hairs = typesof(/datum/sprite_accessory/hair) - /datum/sprite_accessory/hair
@@ -1070,14 +1076,14 @@
 /mob/living/carbon/human/proc/set_species(var/new_species, var/default_colour = 1)
 	if(!dna)
 		if(!new_species)
-			new_species = GLOB.using_map.default_species
+			new_species = SPECIES_HUMAN
 	else
 		if(!new_species)
 			new_species = dna.species
 
 	// No more invisible screaming wheelchairs because of set_species() typos.
-	if(!get_species_by_key(new_species))
-		new_species = GLOB.using_map.default_species
+	if(!all_species[new_species])
+		new_species = SPECIES_HUMAN
 	if(dna)
 		dna.species = new_species
 
@@ -1091,10 +1097,18 @@
 		species.remove_inherent_verbs(src)
 		holder_type = null
 
-	species = get_species_by_key(new_species)
+	species = all_species[new_species]
 	species.handle_pre_spawn(src)
 
-	skin_colour = (species.base_color && default_colour) ? species.base_color : COLOR_BLACK
+	if(species.base_color && default_colour)
+		//Apply colour.
+		r_skin = hex2num(copytext(species.base_color,2,4))
+		g_skin = hex2num(copytext(species.base_color,4,6))
+		b_skin = hex2num(copytext(species.base_color,6,8))
+	else
+		r_skin = 0
+		g_skin = 0
+		b_skin = 0
 
 	if(species.holder_type)
 		holder_type = species.holder_type
@@ -1154,7 +1168,6 @@
 	// Rebuild the HUD and visual elements.
 	if(client)
 		Login()
-
 	full_prosthetic = null
 
 	var/update_lang
@@ -1284,7 +1297,7 @@
 		to_chat(user, SPAN_WARNING("\The [src] is missing that limb."))
 		return 0
 
-	if(BP_IS_PROSTHETIC(affecting))
+	if(BP_IS_ROBOTIC(affecting))
 		to_chat(user, SPAN_WARNING("That limb is prosthetic."))
 		return 0
 
@@ -1532,7 +1545,7 @@
 	else if(organ_check in list(BP_LIVER, BP_KIDNEYS))
 		affecting = organs_by_name[BP_GROIN]
 
-	if(affecting && BP_IS_PROSTHETIC(affecting))
+	if(affecting && BP_IS_ROBOTIC(affecting))
 		return 0
 	return (species && species.has_organ[organ_check])
 
@@ -1549,7 +1562,7 @@
 	. = ..()
 	var/obj/item/organ/internal/heart/H = internal_organs_by_name[BP_HEART]
 	if(H && !H.open)
-		. *= (!BP_IS_PROSTHETIC(H)) ? pulse()/PULSE_NORM : 1.5
+		. *= (!BP_IS_ROBOTIC(H)) ? pulse()/PULSE_NORM : 1.5
 
 /mob/living/carbon/human/need_breathe()
 	if(!(mNobreath in mutations) && species.breathing_organ && should_have_organ(species.breathing_organ))
@@ -1753,7 +1766,7 @@
 	var/obj/item/organ/external/E = get_organ(def_zone)
 	if(!E || E.is_stump())
 		return BULLET_IMPACT_NONE
-	if(BP_IS_PROSTHETIC(E))
+	if(BP_IS_ROBOTIC(E))
 		return BULLET_IMPACT_METAL
 	return BULLET_IMPACT_MEAT
 
